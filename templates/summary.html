@@ -1,0 +1,147 @@
+{% extends "base.html" %}
+{% block title %}AlphaScreener – All Stocks{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <h1>All Stocks</h1>
+  <p>Full S&amp;P 500 scoring table. Click any column header to sort.</p>
+</div>
+
+<!-- ── STATS BAR ── -->
+<div class="stats-bar">
+  <div class="stat-item">
+    <span class="stat-num" id="stat-total">{{ scores|length }}</span>
+    <span class="stat-label">Stocks Scored</span>
+  </div>
+  <div class="stat-item">
+    <span class="stat-num" id="stat-avg">
+      {% if scores %}
+        {{ "%.1f"|format(scores|map(attribute='overall_grade')|select('ne', None)|list|sum / scores|map(attribute='overall_grade')|select('ne', None)|list|length) }}
+      {% else %}—{% endif %}
+    </span>
+    <span class="stat-label">Avg Overall Grade</span>
+  </div>
+  <div class="stat-item">
+    <span class="stat-num" id="stat-high">
+      {{ scores|selectattr('overall_grade', 'ge', 8)|list|length }}
+    </span>
+    <span class="stat-label">Stocks Graded 8+</span>
+  </div>
+  <div class="stat-item">
+    <span class="stat-num" id="stat-low">
+      {{ scores|selectattr('overall_grade', 'le', 3)|list|length }}
+    </span>
+    <span class="stat-label">Stocks Graded 3 or Below</span>
+  </div>
+</div>
+
+<!-- ── FILTERS ── -->
+<div class="filter-bar">
+  <input type="text" id="search-box" class="filter-input" placeholder="🔍  Search ticker or sector…" />
+
+  <select id="sector-filter" class="filter-select">
+    <option value="">All Sectors</option>
+    {% set sectors = scores|map(attribute='sector')|unique|sort %}
+    {% for sec in sectors %}
+      <option value="{{ sec }}">{{ sec }}</option>
+    {% endfor %}
+  </select>
+
+  <select id="grade-filter" class="filter-select">
+    <option value="">All Grades</option>
+    <option value="9">9–10 Conviction Buy</option>
+    <option value="7">7–8 Buy</option>
+    <option value="5">5–6 Hold</option>
+    <option value="3">3–4 Sell</option>
+    <option value="1">1–2 Strong Sell</option>
+  </select>
+
+  <button class="btn-outline btn-sm" id="clear-filters">Clear Filters</button>
+</div>
+
+<!-- ── TABLE ── -->
+{% if scores %}
+<div class="table-wrap">
+  <table class="stocks-table" id="stocks-table">
+    <thead>
+      <tr>
+        <th data-sort="ticker"    class="sortable">#</th>
+        <th data-sort="ticker"    class="sortable">Ticker ↕</th>
+        <th data-sort="sector"    class="sortable">Sector ↕</th>
+        <th data-sort="overall"   class="sortable">Overall ↕</th>
+        <th data-sort="value"     class="sortable">Value ↕</th>
+        <th data-sort="quality"   class="sortable">Quality ↕</th>
+        <th data-sort="momentum"  class="sortable">Momentum ↕</th>
+        <th data-sort="safety"    class="sortable">Safety ↕</th>
+        <th data-sort="return"    class="sortable">1W Return ↕</th>
+      </tr>
+    </thead>
+    <tbody id="stocks-tbody">
+      {% for s in scores %}
+      <tr class="stock-row"
+          data-ticker="{{ s.ticker }}"
+          data-sector="{{ s.sector or '' }}"
+          data-overall="{{ s.overall_grade or 0 }}"
+          data-value="{{ s.value_grade or 0 }}"
+          data-quality="{{ s.quality_grade or 0 }}"
+          data-momentum="{{ s.momentum_grade or 0 }}"
+          data-safety="{{ s.safety_grade or 0 }}"
+          data-return="{{ s.week_return or 0 }}">
+        <td class="row-num"></td>
+        <td class="ticker-cell"><strong>{{ s.ticker }}</strong></td>
+        <td class="sector-cell">{{ s.sector or '—' }}</td>
+        <td>
+          {% if s.overall_grade %}
+            <span class="grade-badge {{ grade_class(s.overall_grade) }}" title="{{ grade_label(s.overall_grade) }}">
+              {{ "%.1f"|format(s.overall_grade) }}
+            </span>
+          {% else %}—{% endif %}
+        </td>
+        <td>
+          {% if s.value_grade %}
+            <span class="grade-badge {{ grade_class(s.value_grade) }}">{{ "%.1f"|format(s.value_grade) }}</span>
+          {% else %}—{% endif %}
+        </td>
+        <td>
+          {% if s.quality_grade %}
+            <span class="grade-badge {{ grade_class(s.quality_grade) }}">{{ "%.1f"|format(s.quality_grade) }}</span>
+          {% else %}—{% endif %}
+        </td>
+        <td>
+          {% if s.momentum_grade %}
+            <span class="grade-badge {{ grade_class(s.momentum_grade) }}">{{ "%.1f"|format(s.momentum_grade) }}</span>
+          {% else %}—{% endif %}
+        </td>
+        <td>
+          {% if s.safety_grade %}
+            <span class="grade-badge {{ grade_class(s.safety_grade) }}">{{ "%.1f"|format(s.safety_grade) }}</span>
+          {% else %}—{% endif %}
+        </td>
+        <td class="return-cell {% if s.week_return and s.week_return > 0 %}pos{% elif s.week_return and s.week_return < 0 %}neg{% endif %}">
+          {% if s.week_return is not none %}
+            {{ "%+.1f"|format(s.week_return * 100) }}%
+          {% else %}—{% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+<p class="table-count" id="visible-count">Showing {{ scores|length }} stocks</p>
+{% else %}
+<div class="empty-state">
+  <div class="empty-icon">📊</div>
+  <h3>No data yet</h3>
+  <p>Run the scoring pipeline to populate grades.</p>
+  <button class="btn-primary" id="run-pipeline-btn">Run Pipeline Now</button>
+  <div id="pipeline-status" class="pipeline-status hidden"></div>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block scripts %}
+<script>
+  // Expose scores count for JS
+  window.SCORES_LOADED = {{ scores|length }};
+</script>
+{% endblock %}

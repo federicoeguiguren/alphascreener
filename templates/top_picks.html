@@ -1,0 +1,141 @@
+{% extends "base.html" %}
+{% block title %}AlphaScreener – Top Picks{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <h1>Top Picks</h1>
+  <p>The 10 highest-graded and 10 lowest-graded S&amp;P 500 stocks this week.</p>
+</div>
+
+{% if not buys and not sells %}
+<div class="empty-state">
+  <div class="empty-icon">🏆</div>
+  <h3>No data yet</h3>
+  <p>Run the scoring pipeline first.</p>
+  <button class="btn-primary" id="run-pipeline-btn">Run Pipeline Now</button>
+  <div id="pipeline-status" class="pipeline-status hidden"></div>
+</div>
+{% else %}
+<div class="picks-grid">
+
+  <!-- ── BUYS ── -->
+  <div class="picks-column picks-buys">
+    <div class="picks-col-header">
+      <span class="picks-icon">📈</span>
+      <h2>Top 10 Buys</h2>
+      <span class="picks-badge badge-buy">Conviction Longs</span>
+    </div>
+
+    {% for s in buys %}
+    <div class="pick-card pick-buy">
+      <div class="pick-rank">#{{ loop.index }}</div>
+      <div class="pick-main">
+        <div class="pick-top">
+          <span class="pick-ticker">{{ s.ticker }}</span>
+          <span class="pick-sector">{{ s.sector or '—' }}</span>
+          {% if s.week_return is not none %}
+            <span class="pick-return {% if s.week_return >= 0 %}pos{% else %}neg{% endif %}">
+              {{ "%+.1f"|format(s.week_return * 100) }}%
+            </span>
+          {% endif %}
+        </div>
+        <div class="pick-grades">
+          {% if s.overall_grade %}
+            <span class="pick-overall {{ grade_class(s.overall_grade) }}">
+              {{ "%.1f"|format(s.overall_grade) }}
+              <small>Overall</small>
+            </span>
+          {% endif %}
+          <div class="pick-cats">
+            {% if s.value_grade %}
+              <span class="mini-badge {{ grade_class(s.value_grade) }}" title="Value">
+                V {{ "%.0f"|format(s.value_grade) }}
+              </span>
+            {% endif %}
+            {% if s.quality_grade %}
+              <span class="mini-badge {{ grade_class(s.quality_grade) }}" title="Quality">
+                Q {{ "%.0f"|format(s.quality_grade) }}
+              </span>
+            {% endif %}
+            {% if s.momentum_grade %}
+              <span class="mini-badge {{ grade_class(s.momentum_grade) }}" title="Momentum">
+                M {{ "%.0f"|format(s.momentum_grade) }}
+              </span>
+            {% endif %}
+            {% if s.safety_grade %}
+              <span class="mini-badge {{ grade_class(s.safety_grade) }}" title="Safety">
+                S {{ "%.0f"|format(s.safety_grade) }}
+              </span>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+
+  <!-- ── SELLS ── -->
+  <div class="picks-column picks-sells">
+    <div class="picks-col-header">
+      <span class="picks-icon">📉</span>
+      <h2>Top 10 Sells</h2>
+      <span class="picks-badge badge-sell">Avoid / Short</span>
+    </div>
+
+    {% for s in sells %}
+    <div class="pick-card pick-sell">
+      <div class="pick-rank">#{{ loop.index }}</div>
+      <div class="pick-main">
+        <div class="pick-top">
+          <span class="pick-ticker">{{ s.ticker }}</span>
+          <span class="pick-sector">{{ s.sector or '—' }}</span>
+          {% if s.week_return is not none %}
+            <span class="pick-return {% if s.week_return >= 0 %}pos{% else %}neg{% endif %}">
+              {{ "%+.1f"|format(s.week_return * 100) }}%
+            </span>
+          {% endif %}
+        </div>
+        <div class="pick-grades">
+          {% if s.overall_grade %}
+            <span class="pick-overall {{ grade_class(s.overall_grade) }}">
+              {{ "%.1f"|format(s.overall_grade) }}
+              <small>Overall</small>
+            </span>
+          {% endif %}
+          <div class="pick-cats">
+            {% if s.value_grade %}
+              <span class="mini-badge {{ grade_class(s.value_grade) }}" title="Value">
+                V {{ "%.0f"|format(s.value_grade) }}
+              </span>
+            {% endif %}
+            {% if s.quality_grade %}
+              <span class="mini-badge {{ grade_class(s.quality_grade) }}" title="Quality">
+                Q {{ "%.0f"|format(s.quality_grade) }}
+              </span>
+            {% endif %}
+            {% if s.momentum_grade %}
+              <span class="mini-badge {{ grade_class(s.momentum_grade) }}" title="Momentum">
+                M {{ "%.0f"|format(s.momentum_grade) }}
+              </span>
+            {% endif %}
+            {% if s.safety_grade %}
+              <span class="mini-badge {{ grade_class(s.safety_grade) }}" title="Safety">
+                S {{ "%.0f"|format(s.safety_grade) }}
+              </span>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+
+</div><!-- /.picks-grid -->
+
+<div class="picks-footnote">
+  <p>Grades are relative rankings within the S&amp;P 500 universe.
+     A grade of 10 means top-decile across all four factor categories.
+     <a href="/">Learn more about the methodology →</a></p>
+</div>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,194 @@
+{% extends "base.html" %}
+{% block title %}AlphaScreener – Overview{% endblock %}
+
+{% block content %}
+<div class="page-hero">
+  <h1>Grade Every S&amp;P 500 Stock. Every Week.</h1>
+  <p class="hero-sub">AlphaScreener scores ~500 stocks on a <strong>1–10 scale</strong> across four
+     evidence-based factors. No hype, no guesswork — just data.</p>
+  <div class="hero-actions">
+    <a href="/top-picks" class="btn-primary">View Top Picks</a>
+    <a href="/summary"   class="btn-outline">Browse All Stocks</a>
+  </div>
+</div>
+
+<!-- ── CATEGORY CARDS ── -->
+<section class="section">
+  <h2 class="section-title">How Stocks Are Scored</h2>
+  <p class="section-sub">Each stock receives four category grades (1–10), combined into an
+     <strong>Overall Grade</strong> using the weights below.</p>
+
+  <div class="category-grid">
+    <div class="cat-card cat-value">
+      <div class="cat-header">
+        <span class="cat-icon">💰</span>
+        <div>
+          <h3>Value</h3>
+          <span class="cat-weight">30% weight</span>
+        </div>
+      </div>
+      <p>Measures how cheaply a stock trades relative to its fundamentals.
+         Cheap stocks tend to outperform over long horizons.</p>
+      <ul class="signal-list">
+        <li><strong>Book-to-Market</strong> — book value ÷ price</li>
+        <li><strong>Earnings Yield</strong> — EPS ÷ price (inverse P/E)</li>
+      </ul>
+    </div>
+
+    <div class="cat-card cat-quality">
+      <div class="cat-header">
+        <span class="cat-icon">⚙️</span>
+        <div>
+          <h3>Quality</h3>
+          <span class="cat-weight">35% weight</span>
+        </div>
+      </div>
+      <p>Measures business strength — profitability, balance-sheet health, and earnings reliability.</p>
+      <ul class="signal-list">
+        <li><strong>Gross-Profit Ratio</strong> — gross profit ÷ assets</li>
+        <li><strong>ROA</strong> — return on assets</li>
+        <li><strong>Current Ratio</strong> — short-term liquidity</li>
+        <li><strong>Cash-Flow Quality</strong> — operating cash ÷ net income</li>
+        <li><strong>Piotroski F-Score</strong> — 9-point financial health check</li>
+        <li><strong>Earnings Quality</strong> — low accruals = high quality</li>
+      </ul>
+    </div>
+
+    <div class="cat-card cat-momentum">
+      <div class="cat-header">
+        <span class="cat-icon">🚀</span>
+        <div>
+          <h3>Momentum</h3>
+          <span class="cat-weight">20% weight</span>
+        </div>
+      </div>
+      <p>Stocks that have risen tend to keep rising. Momentum captures this persistence in returns.</p>
+      <ul class="signal-list">
+        <li><strong>12-Month Return</strong> — trailing year price gain</li>
+        <li><strong>1-Month Return</strong> — recent short-term trend</li>
+      </ul>
+    </div>
+
+    <div class="cat-card cat-safety">
+      <div class="cat-header">
+        <span class="cat-icon">🛡️</span>
+        <div>
+          <h3>Safety</h3>
+          <span class="cat-weight">15% weight</span>
+        </div>
+      </div>
+      <p>Low-risk stocks (low volatility, low debt) tend to outperform on a risk-adjusted basis.</p>
+      <ul class="signal-list">
+        <li><strong>Volatility</strong> — annualised daily return std dev</li>
+        <li><strong>Beta</strong> — market sensitivity</li>
+        <li><strong>Leverage</strong> — total debt ÷ equity</li>
+        <li><strong>Skewness</strong> — return distribution shape</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ── GRADE SCALE ── -->
+<section class="section">
+  <h2 class="section-title">Grade Scale</h2>
+  <div class="grade-scale-grid">
+    <div class="grade-scale-item">
+      <span class="grade-badge grade-9">9–10</span>
+      <div>
+        <strong>Conviction Buy</strong>
+        <p>Top-decile across factors. Strong fundamental and price case.</p>
+      </div>
+    </div>
+    <div class="grade-scale-item">
+      <span class="grade-badge grade-7">7–8</span>
+      <div>
+        <strong>Buy</strong>
+        <p>Above-average on most metrics. Worth adding to a watchlist.</p>
+      </div>
+    </div>
+    <div class="grade-scale-item">
+      <span class="grade-badge grade-5">5–6</span>
+      <div>
+        <strong>Hold / Neutral</strong>
+        <p>Mixed signals. No strong edge either way.</p>
+      </div>
+    </div>
+    <div class="grade-scale-item">
+      <span class="grade-badge grade-3">3–4</span>
+      <div>
+        <strong>Sell</strong>
+        <p>Below-average fundamentals or deteriorating momentum.</p>
+      </div>
+    </div>
+    <div class="grade-scale-item">
+      <span class="grade-badge grade-1">1–2</span>
+      <div>
+        <strong>Strong Sell</strong>
+        <p>Bottom-decile. Avoid or consider shorting.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── METHODOLOGY ── -->
+<section class="section">
+  <h2 class="section-title">Methodology</h2>
+  <div class="methodology-grid">
+    <div class="method-step">
+      <div class="step-num">1</div>
+      <h4>Fetch Universe</h4>
+      <p>All S&amp;P 500 constituents are pulled weekly from Wikipedia.</p>
+    </div>
+    <div class="method-step">
+      <div class="step-num">2</div>
+      <h4>Compute Signals</h4>
+      <p>14 raw financial signals are calculated per stock using 5-year historical data.</p>
+    </div>
+    <div class="method-step">
+      <div class="step-num">3</div>
+      <h4>Rank &amp; Grade</h4>
+      <p>Each signal is ranked <em>within</em> the S&amp;P 500 universe and converted to a 1–10 grade.</p>
+    </div>
+    <div class="method-step">
+      <div class="step-num">4</div>
+      <h4>Combine</h4>
+      <p>Category grades are weighted and averaged into one Overall Grade per stock.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ── QUICK LINKS ── -->
+<section class="section quick-links-section">
+  <h2 class="section-title">Explore</h2>
+  <div class="quick-links">
+    <a href="/top-picks" class="quick-link-card">
+      <span class="ql-icon">🏆</span>
+      <strong>Top 10 Buys</strong>
+      <p>Highest-graded stocks this week</p>
+    </a>
+    <a href="/top-picks" class="quick-link-card ql-sell">
+      <span class="ql-icon">⚠️</span>
+      <strong>Top 10 Sells</strong>
+      <p>Lowest-graded stocks this week</p>
+    </a>
+    <a href="/summary" class="quick-link-card ql-neutral">
+      <span class="ql-icon">📋</span>
+      <strong>All Stocks</strong>
+      <p>Search and filter the full S&amp;P 500</p>
+    </a>
+    <a href="/sectors" class="quick-link-card ql-sector">
+      <span class="ql-icon">🏭</span>
+      <strong>Sectors</strong>
+      <p>Grade breakdown by GICS sector</p>
+    </a>
+  </div>
+</section>
+
+<section class="section disclaimer-section">
+  <div class="disclaimer-box">
+    <strong>⚠️ Disclaimer:</strong> AlphaScreener is a quantitative research tool for
+    <em>educational purposes only</em>. Grades are based on historical data and do not constitute
+    financial advice. Always do your own research before making investment decisions.
+  </div>
+</section>
+{% endblock %}

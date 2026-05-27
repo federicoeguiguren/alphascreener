@@ -1,0 +1,119 @@
+{% extends "base.html" %}
+{% block title %}AlphaScreener – Sectors{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <h1>Sector Overview</h1>
+  <p>Average grades and best/worst stocks across all 11 GICS sectors.</p>
+</div>
+
+{% if not sectors %}
+<div class="empty-state">
+  <div class="empty-icon">🏭</div>
+  <h3>No data yet</h3>
+  <p>Run the scoring pipeline first.</p>
+  <button class="btn-primary" id="run-pipeline-btn">Run Pipeline Now</button>
+  <div id="pipeline-status" class="pipeline-status hidden"></div>
+</div>
+{% else %}
+
+<!-- ── SECTOR SUMMARY BAR ── -->
+<div class="sector-summary-bar">
+  {% set best_sector  = sectors | sort(attribute='avg_grade', reverse=True)  | first %}
+  {% set worst_sector = sectors | sort(attribute='avg_grade')                 | first %}
+  <div class="sec-sum-item">
+    <span class="sec-sum-label">Strongest Sector</span>
+    <span class="sec-sum-val grade-badge grade-{{ [best_sector.avg_grade | int, 1] | max }}">
+      {{ best_sector.sector }} ({{ best_sector.avg_grade }})
+    </span>
+  </div>
+  <div class="sec-sum-item">
+    <span class="sec-sum-label">Weakest Sector</span>
+    <span class="sec-sum-val grade-badge grade-{{ [worst_sector.avg_grade | int, 1] | max }}">
+      {{ worst_sector.sector }} ({{ worst_sector.avg_grade }})
+    </span>
+  </div>
+  <div class="sec-sum-item">
+    <span class="sec-sum-label">Sectors Tracked</span>
+    <span class="sec-sum-val stat-num">{{ sectors | length }}</span>
+  </div>
+</div>
+
+<!-- ── SECTOR CARDS GRID ── -->
+<div class="sector-grid">
+  {% for sec in sectors | sort(attribute='avg_grade', reverse=True) %}
+  <div class="sector-card">
+
+    <div class="sector-card-header">
+      <h3 class="sector-name">{{ sec.sector }}</h3>
+      <span class="sector-avg {{ grade_class(sec.avg_grade) }}">{{ sec.avg_grade }}</span>
+    </div>
+
+    <div class="sector-stock-count">{{ sec.stock_count }} stocks</div>
+
+    <!-- Best / Worst -->
+    <div class="sector-extremes">
+      <div class="extreme-item extreme-best">
+        <span class="extreme-label">Best</span>
+        <span class="extreme-ticker">{{ sec.best.ticker }}</span>
+        <span class="grade-badge {{ grade_class(sec.best.grade) }}">{{ sec.best.grade }}</span>
+      </div>
+      <div class="extreme-item extreme-worst">
+        <span class="extreme-label">Worst</span>
+        <span class="extreme-ticker">{{ sec.worst.ticker }}</span>
+        <span class="grade-badge {{ grade_class(sec.worst.grade) }}">{{ sec.worst.grade }}</span>
+      </div>
+    </div>
+
+    <!-- Grade distribution bar -->
+    <div class="dist-label">Grade distribution</div>
+    <div class="dist-bar">
+      {% set total = sec.stock_count %}
+      {% if sec.distribution['9-10'] > 0 %}
+        <div class="dist-seg dist-green"
+             style="width:{{ (sec.distribution['9-10'] / total * 100) | round(1) }}%"
+             title="9-10: {{ sec.distribution['9-10'] }} stocks"></div>
+      {% endif %}
+      {% if sec.distribution['7-8'] > 0 %}
+        <div class="dist-seg dist-orange"
+             style="width:{{ (sec.distribution['7-8'] / total * 100) | round(1) }}%"
+             title="7-8: {{ sec.distribution['7-8'] }} stocks"></div>
+      {% endif %}
+      {% if sec.distribution['5-6'] > 0 %}
+        <div class="dist-seg dist-yellow"
+             style="width:{{ (sec.distribution['5-6'] / total * 100) | round(1) }}%"
+             title="5-6: {{ sec.distribution['5-6'] }} stocks"></div>
+      {% endif %}
+      {% if sec.distribution['3-4'] > 0 %}
+        <div class="dist-seg dist-red"
+             style="width:{{ (sec.distribution['3-4'] / total * 100) | round(1) }}%"
+             title="3-4: {{ sec.distribution['3-4'] }} stocks"></div>
+      {% endif %}
+      {% if sec.distribution['1-2'] > 0 %}
+        <div class="dist-seg dist-darkred"
+             style="width:{{ (sec.distribution['1-2'] / total * 100) | round(1) }}%"
+             title="1-2: {{ sec.distribution['1-2'] }} stocks"></div>
+      {% endif %}
+    </div>
+
+    <!-- High/Low counts -->
+    <div class="sector-hilo">
+      <span class="hilo-high">▲ {{ sec.high_count }} graded 7+</span>
+      <span class="hilo-low">▼ {{ sec.low_count }} graded 3−</span>
+    </div>
+
+  </div>
+  {% endfor %}
+</div>
+
+<!-- ── LEGEND ── -->
+<div class="dist-legend">
+  <span class="legend-item"><span class="legend-dot dist-green"></span> 9–10</span>
+  <span class="legend-item"><span class="legend-dot dist-orange"></span> 7–8</span>
+  <span class="legend-item"><span class="legend-dot dist-yellow"></span> 5–6</span>
+  <span class="legend-item"><span class="legend-dot dist-red"></span> 3–4</span>
+  <span class="legend-item"><span class="legend-dot dist-darkred"></span> 1–2</span>
+</div>
+
+{% endif %}
+{% endblock %}
